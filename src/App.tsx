@@ -1,83 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Calendar,
-  Check,
-  ArrowRight,
-  MessageCircle,
-  Leaf,
-  MapPin,
-  Smartphone,
-  Ruler,
-  Scale,
-  Zap,
-  ChevronRight,
-  AlertCircle,
-  Star,
-  Award,
-  User,
-  BookOpen,
-  Clock,
-  ChevronLeft,
-  Users,
-  PhoneCall,
-  Mail,
-  CreditCard,
-  Wallet,
+import { 
+  Calendar, Check, ArrowRight, MessageCircle, Leaf, 
+  MapPin, Smartphone, Ruler, Zap, ChevronRight, 
+  AlertCircle, Star, Award, User, BookOpen, Clock, 
+  ChevronLeft, PhoneCall, Mail, CreditCard, Wallet
 } from 'lucide-react';
 
 // --- FIREBASE IMPORTS ---
 import { initializeApp } from 'firebase/app';
-import {
-  getAuth,
-  signInAnonymously,
-  signInWithCustomToken,
-  onAuthStateChanged,
-} from 'firebase/auth';
-import {
-  getFirestore,
-  doc,
-  addDoc,
-  collection,
-  onSnapshot,
+import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
+import { 
+  getFirestore, addDoc, collection, onSnapshot
 } from 'firebase/firestore';
 
 // --- CORES DA MARCA ---
 const BRAND = {
   PRIMARY: '#004D40', // Verde Turquesa Escuro
   HIGHLIGHT: '#FFC107', // Amarelo Vibrante
-  TEXT: '#1F2937', // Cinza Escuro
-  BG: '#F9FAFB', // Fundo
+  TEXT: '#1F2937',    // Cinza Escuro
+  BG: '#F9FAFB',      // Fundo
 };
 
 // --- DADOS DO VITTA+ ---
 const PROF_BIO = {
-  name: 'PROF. VITOR FIECHTER',
-  role: 'O PROFESSOR DO MOVIMENTO',
-  text: 'Minha paixão pelo corpo humano me levou à Educação Física pela UFPR. Mas minha jornada analítica começou antes, como Técnico em Eletrônica. Não vejo apenas músculos, vejo sistemas complexos que precisam de lógica, precisão e didática.',
-  experience: '5 anos de experiência | Formado pela UFPR',
+  name: "PROF. VITOR FIECHTER", 
+  role: "O PROFESSOR DO MOVIMENTO", 
+  text: "Minha paixão pelo corpo humano me levou à Educação Física pela UFPR. Mas minha jornada analítica começou antes, como Técnico em Eletrônica. Não vejo apenas músculos, vejo sistemas complexos que precisam de lógica, precisão e didática.",
+  experience: "5 anos de experiência | Formado pela UFPR"
 };
 
 const METHOD_PILLARS = [
-  {
-    title: 'CIÊNCIA',
-    desc: 'Adeus aos mitos. Treino 100% baseado em evidências.',
-    icon: <BookOpen className="w-5 h-5 text-white" />,
-  },
-  {
-    title: 'DIDÁTICA',
-    desc: 'Você não só executa, você entende. O objetivo é sua autonomia.',
-    icon: <Award className="w-5 h-5 text-white" />,
-  },
-  {
-    title: 'MENTE',
-    desc: 'Transformar obrigação em prazer. A constância vence a autossabotagem.',
-    icon: <Star className="w-5 h-5 text-white" />,
-  },
+  { title: "CIÊNCIA", desc: "Adeus aos mitos. Treino 100% baseado em evidências.", icon: <BookOpen className="w-5 h-5 text-white" /> },
+  { title: "DIDÁTICA", desc: "Você não só executa, você entende. O objetivo é sua autonomia.", icon: <Award className="w-5 h-5 text-white" /> },
+  { title: "MENTE", desc: "Transformar obrigação em prazer. A constância vence a autossabotagem.", icon: <Star className="w-5 h-5 text-white" /> }
 ];
 
 const PLANS_DATA: any = {
   presencial: {
-    label: 'PRESENCIAL',
+    label: "PRESENCIAL",
     icon: <MapPin className="w-6 h-6 text-white" />,
     plans: [
       {
@@ -92,9 +52,9 @@ const PLANS_DATA: any = {
           'Avaliação Física Deluxe inclusa',
           'Periodização de treino personalizada',
           'Suporte dúvidas via WhatsApp',
-          'Acesso ao Guia de Mobilidade',
+          'Acesso ao Guia de Mobilidade'
         ],
-        frequency: 2,
+        frequency: 2, 
         badge: 'AVALIAÇÃO DELUXE INCLUSA',
       },
       {
@@ -109,17 +69,17 @@ const PLANS_DATA: any = {
           'Avaliação Física Deluxe inclusa',
           'Periodização e ajustes semanais',
           'Suporte prioritário WhatsApp',
-          'Guia de Mobilidade e Flexibilidade',
+          'Guia de Mobilidade e Flexibilidade'
         ],
         featured: true,
-        highlight: 'DESTAQUE ELITE',
-        frequency: 3,
+        highlight: 'DESTAQUE ELITE', 
+        frequency: 3, 
         badge: 'DESTAQUE ELITE',
-      },
-    ],
+      }
+    ]
   },
   online: {
-    label: 'ONLINE',
+    label: "ONLINE",
     icon: <Smartphone className="w-6 h-6 text-white" />,
     plans: [
       {
@@ -128,21 +88,17 @@ const PLANS_DATA: any = {
         price: 'R$ 129,90',
         period: 'MENSAL',
         tagline: 'Para começar certo',
-        features: [
-          'Avaliação e diagnóstico',
-          'Planejamento de aderência',
-          'Suporte via App',
-        ],
-        frequency: 0,
+        features: ['Avaliação e diagnóstico', 'Planejamento de aderência', 'Suporte via App'],
+        frequency: 0, 
       },
       {
-        id: 'on_performance',
-        name: 'PERFORMANCE',
+        id: 'on_performance', 
+        name: 'PERFORMANCE', 
         price: 'R$ 199,90',
         period: 'MENSAL',
-        tagline: 'O suporte da IA Vitta+',
+        tagline: 'O suporte da IA Vitta+', 
         features: [
-          'Tudo do plano Start',
+          'Tudo do plano Start', 
           'Análise de vídeo (correção)',
           'Ajustes de treino a cada 4 semanas',
           'Dúvidas? Fale com a IA Vitta+',
@@ -158,54 +114,42 @@ const PLANS_DATA: any = {
         period: 'MENSAL',
         tagline: 'Experiência completa',
         features: [
-          'Suporte prioritário VIP',
-          '4 videochamadas mensais (semanal)',
+          'Suporte prioritário VIP', 
+          '4 videochamadas mensais (semanal)', 
           'Acompanhamento de perto',
-          'Didática aprofundada',
+          'Didática aprofundada'
         ],
         frequency: 0,
-      },
-    ],
+      }
+    ]
   },
   avaliacao: {
-    label: 'AVALIAÇÃO',
+    label: "AVALIAÇÃO",
     icon: <Ruler className="w-6 h-6 text-white" />,
     plans: [
       {
         id: 'av_premium',
         name: 'PREMIUM',
-        price: 'R$ 149,90',
+        price: 'R$ 149,90', 
         period: 'SESSÃO ÚNICA',
         tagline: 'Diagnóstico essencial',
-        features: [
-          'Peso e altura',
-          'Circunferências',
-          'Anamnese completa',
-          'Postural (agachamento)',
-        ],
-        frequency: 1,
+        features: ['Peso e altura', 'Circunferências', 'Anamnese completa', 'Postural (agachamento)'],
+        frequency: 1, 
       },
       {
         id: 'av_deluxe',
         name: 'DELUXE',
-        price: 'R$ 249,90',
+        price: 'R$ 249,90', 
         period: 'SESSÃO ÚNICA',
         tagline: 'Análise 360º profunda',
-        features: [
-          'Tudo da Premium',
-          'VO2 Submáximo',
-          'Testes de força',
-          'Teste de encurtamento',
-          'Dobras cutâneas',
-          'Bioimpedância',
-        ],
+        features: ['Tudo da Premium', 'VO2 Submáximo', 'Testes de força', 'Teste de encurtamento', 'Dobras cutâneas', 'Bioimpedância'],
         highlight: 'MAIS COMPLETA',
         frequency: 1,
-      },
-    ],
+      }
+    ]
   },
-  combos: {
-    label: 'COMBOS',
+  combos: { 
+    label: "COMBOS",
     icon: <Zap className="w-6 h-6 text-white" />,
     plans: [
       {
@@ -215,108 +159,74 @@ const PLANS_DATA: any = {
         period: 'COMBO',
         tagline: 'O melhor dos dois mundos',
         features: [
-          'Consultoria online Performance',
-          '1 Avaliação Deluxe presencial',
+          'Consultoria online Performance', 
+          '1 Avaliação Deluxe presencial', 
           'Relatório integrado completo',
-          'Economia inteligente',
+          'Economia inteligente'
         ],
         highlight: 'HÍBRIDO PERFEITO',
-        frequency: 1,
-      },
-    ],
-  },
+        frequency: 1, 
+      }
+    ]
+  }
 };
 
 const INITIAL_SLOTS_DATA = [
-  {
-    name: 'Segunda',
-    morning: ['06:00', '07:00', '08:00', '09:00', '10:00', '11:00'],
-    afternoon: ['14:00', '15:00', '16:00', '17:00', '18:00'],
-  },
-  {
-    name: 'Terça',
-    morning: ['06:00', '07:00', '08:00', '09:00', '10:00', '11:00'],
-    afternoon: ['14:00', '15:00', '16:00', '17:00', '18:00'],
-  },
-  {
-    name: 'Quarta',
-    morning: ['06:00', '07:00', '08:00', '09:00', '10:00', '11:00'],
-    afternoon: ['14:00', '15:00', '16:00', '17:00', '18:00'],
-  },
-  {
-    name: 'Quinta',
-    morning: ['06:00', '07:00', '08:00', '09:00', '10:00', '11:00'],
-    afternoon: ['14:00', '15:00', '16:00', '17:00', '18:00'],
-  },
-  {
-    name: 'Sexta',
-    morning: ['06:00', '07:00', '08:00', '09:00', '10:00', '11:00'],
-    afternoon: ['14:00', '15:00', '16:00', '17:00', '18:00'],
-  },
+  { name: 'Segunda', morning: ['06:00', '07:00', '08:00', '09:00', '10:00', '11:00'], afternoon: ['14:00', '15:00', '16:00', '17:00', '18:00'] },
+  { name: 'Terça', morning: ['06:00', '07:00', '08:00', '09:00', '10:00', '11:00'], afternoon: ['14:00', '15:00', '16:00', '17:00', '18:00'] },
+  { name: 'Quarta', morning: ['06:00', '07:00', '08:00', '09:00', '10:00', '11:00'], afternoon: ['14:00', '15:00', '16:00', '17:00', '18:00'] },
+  { name: 'Quinta', morning: ['06:00', '07:00', '08:00', '09:00', '10:00', '11:00'], afternoon: ['14:00', '15:00', '16:00', '17:00', '18:00'] },
+  { name: 'Sexta', morning: ['06:00', '07:00', '08:00', '09:00', '10:00', '11:00'], afternoon: ['14:00', '15:00', '16:00', '17:00', '18:00'] },
 ];
 
-const createInitialSlotState = () =>
-  INITIAL_SLOTS_DATA.map((day) => ({
-    name: day.name,
-    slots: [
-      ...day.morning.map((time) => ({ time, booked: false })),
-      ...day.afternoon.map((time) => ({ time, booked: false })),
-    ],
-  }));
+const createInitialSlotState = () => INITIAL_SLOTS_DATA.map(day => ({
+  name: day.name,
+  slots: [
+    ...day.morning.map(time => ({ time, booked: false })),
+    ...day.afternoon.map(time => ({ time, booked: false })),
+  ],
+}));
 
-// --- ⚙️ CONFIGURAÇÃO FIREBASE ADAPTADA PARA STACKBLITZ ---
-
-// 1. Definição segura do App ID (Removemos o __app_id que causa erro)
-const appId = 'vitta-plus-default';
-
-// 2. Configuração do Firebase
-// IMPORTANTE: Para funcionar o banco de dados real, você deve colar sua config do Firebase aqui.
-// Por enquanto, deixei vazio para o app não quebrar visualmente.
+// 2. Configuração do Firebase (JÁ CONFIGURADO COM SUA CHAVE)
 const firebaseConfig = {
-  apiKey: 'AIzaSyDtdnW6kAFEpKQnpP3iJuuxJCIk87M_lcc',
-  authDomain: 'vitta-7321a.firebaseapp.com',
-  projectId: 'vitta-7321a',
-  storageBucket: 'vitta-7321a.firebasestorage.app',
-  messagingSenderId: '913465735646',
-  appId: '1:913465735646:web:16c9bbe60927916689854f',
-  measurementId: 'G-HB82KJ4JK8',
+  apiKey: "AIzaSyDtdnW6kAFEpKQnPp3iJuuxJCIk87M_lcc",
+  authDomain: "vitta-7321a.firebaseapp.com",
+  projectId: "vitta-7321a",
+  storageBucket: "vitta-7321a.firebasestorage.app",
+  messagingSenderId: "913465735646",
+  appId: "1:913465735646:web:16c9bbe60927916689854f",
+  measurementId: "G-HB82KJ4JK8"
 };
 
-const RESERVATION_COLLECTION = `reservations`; // Simplifiquei a coleção para uso geral
+const RESERVATION_COLLECTION = `reservations`;
 
 let db: any = null;
 let auth: any = null;
 let app: any = null;
 
-// Inicialização segura: Só tenta conectar se houver configuração real
+// Inicialização segura
 if (Object.keys(firebaseConfig).length > 0 && (firebaseConfig as any).apiKey) {
-  try {
-    app = initializeApp(firebaseConfig);
-    db = getFirestore(app);
-    auth = getAuth(app);
-  } catch (e) {
-    console.error('Erro na inicialização do Firebase:', e);
-  }
-} else {
-  console.log(
-    'Firebase não configurado. O app rodará em modo visual (sem salvar no banco).'
-  );
+    try {
+        app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        auth = getAuth(app);
+    } catch (e) {
+        console.error("Erro na inicialização do Firebase:", e);
+    }
 }
 
-const PHONE_NUMBER = '5541995498077';
-const EMAIL_CONTACT = 'vitorfiechter@ufpr.br';
+const PHONE_NUMBER = "5541995498077"; 
+const EMAIL_CONTACT = "vitorfiechter@ufpr.br"; 
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('presencial');
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
-  const [selectedSlots, setSelectedSlots] = useState<any[]>([]);
+  const [selectedSlots, setSelectedSlots] = useState<any[]>([]); 
   const [userData, setUserData] = useState({ name: '', payment: 'pix' });
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(0); 
   const [errorMsg, setErrorMsg] = useState('');
-  const [availableSlots, setAvailableSlots] = useState(
-    createInitialSlotState()
-  );
-
+  const [availableSlots, setAvailableSlots] = useState(createInitialSlotState()); 
+  
   // Estado Firebase
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
@@ -329,73 +239,66 @@ export default function App() {
     let localUserId = userId;
     if (!localUserId) return;
 
-    const unsubscribe = onSnapshot(
-      collection(db, RESERVATION_COLLECTION),
-      (snapshot) => {
-        const allBookedSlots: any[] = [];
+    const unsubscribe = onSnapshot(collection(db, RESERVATION_COLLECTION), (snapshot) => {
+      const allBookedSlots: any[] = [];
+      
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.slots && Array.isArray(data.slots)) {
+          allBookedSlots.push(...data.slots);
+        }
+      });
 
-        snapshot.forEach((doc) => {
-          const data = doc.data();
-          if (data.slots && Array.isArray(data.slots)) {
-            allBookedSlots.push(...data.slots);
-          }
-        });
-
-        setAvailableSlots((currentSlots) => {
-          return currentSlots.map((dayBlock) => ({
-            ...dayBlock,
-            slots: dayBlock.slots.map((slot) => {
-              const isBooked = allBookedSlots.some(
-                (booked) =>
-                  booked.day === dayBlock.name && booked.time === slot.time
-              );
-              return { ...slot, booked: isBooked };
-            }),
-          }));
-        });
-      },
-      (error) => {
-        console.error('Erro ao sincronizar agenda:', error);
-      }
-    );
+      setAvailableSlots((currentSlots) => {
+        return currentSlots.map((dayBlock) => ({
+          ...dayBlock,
+          slots: dayBlock.slots.map((slot) => {
+            const isBooked = allBookedSlots.some(
+              (booked) => booked.day === dayBlock.name && booked.time === slot.time
+            );
+            return { ...slot, booked: isBooked };
+          }),
+        }));
+      });
+    }, (error) => {
+      console.error("Erro ao sincronizar agenda:", error);
+    });
 
     return () => unsubscribe();
-  }, [userId]);
+  }, [userId]); 
 
   // --- INICIALIZAÇÃO AUTH ---
   useEffect(() => {
     const initFirebase = async () => {
-      if (!auth) {
-        // Se não tem auth (modo visual), libera o app imediatamente com ID falso
-        setUserId('modo-visual-' + Math.random().toString(36).substr(2, 9));
-        setIsAuthReady(true);
-        return;
-      }
+        if (!auth) {
+            setUserId('modo-visual-' + Math.random().toString(36).substr(2, 9));
+            setIsAuthReady(true);
+            return;
+        }
 
-      try {
-        await signInAnonymously(auth);
-      } catch (e) {
-        console.error('Erro na autenticação:', e);
-        setIsAuthReady(true); // Libera mesmo com erro para não travar
-      }
+        try {
+            await signInAnonymously(auth);
+        } catch (e) {
+            console.error("Erro na autenticação:", e);
+            setIsAuthReady(true);
+        }
     };
 
     if (auth) {
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
-        if (user) {
-          setUserId(user.uid);
-        } else {
-          setUserId(null);
-        }
-        setIsAuthReady(true);
-      });
-
-      initFirebase();
-      return () => unsubscribe();
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setUserId(user.uid);
+            } else {
+                 setUserId(null); 
+            }
+            setIsAuthReady(true);
+        });
+        
+        initFirebase();
+        return () => unsubscribe();
     } else {
-      // Fallback para quando não há firebase configurado
-      setUserId('visitante');
-      setIsAuthReady(true);
+        setUserId('visitante');
+        setIsAuthReady(true);
     }
   }, []);
 
@@ -413,9 +316,9 @@ export default function App() {
   const handlePlanSelect = (plan: any) => {
     setSelectedPlan(plan);
     if (plan.frequency === 0) {
-      setStep(3);
+      setStep(3); 
     } else {
-      setStep(2);
+      setStep(2); 
     }
   };
 
@@ -425,8 +328,8 @@ export default function App() {
 
     const maxSlots = selectedPlan.frequency;
     const slotId = `${dayName}-${time}`;
-    const existingIndex = selectedSlots.findIndex((s) => s.id === slotId);
-
+    const existingIndex = selectedSlots.findIndex(s => s.id === slotId);
+    
     // Desmarcar
     if (existingIndex >= 0) {
       const newSlots = [...selectedSlots];
@@ -442,9 +345,9 @@ export default function App() {
     }
 
     // Regra: Dias diferentes
-    const hasSlotInDay = selectedSlots.some((s) => s.day === dayName);
+    const hasSlotInDay = selectedSlots.some(s => s.day === dayName);
     if (hasSlotInDay && maxSlots > 1) {
-      setErrorMsg('Escolha dias diferentes para cada treino.');
+      setErrorMsg("Escolha dias diferentes para cada treino.");
       return;
     }
 
@@ -454,22 +357,14 @@ export default function App() {
 
   const formatSelectedSlots = () => {
     if (selectedSlots.length === 0) return 'A definir';
-    const dayOrder: any = {
-      Segunda: 1,
-      Terça: 2,
-      Quarta: 3,
-      Quinta: 4,
-      Sexta: 5,
-    };
-    const sorted = [...selectedSlots].sort(
-      (a, b) => dayOrder[a.day] - dayOrder[b.day]
-    );
-    return sorted.map((s) => `${s.day} às ${s.time}`).join('\n• ');
+    const dayOrder: any = { 'Segunda': 1, 'Terça': 2, 'Quarta': 3, 'Quinta': 4, 'Sexta': 5 };
+    const sorted = [...selectedSlots].sort((a, b) => dayOrder[a.day] - dayOrder[b.day]);
+    return sorted.map(s => `${s.day} às ${s.time}`).join('\n• ');
   };
 
   const handleFinalize = async () => {
     if (!userData.name) {
-      setErrorMsg('Por favor, preencha seu nome para continuarmos.');
+      setErrorMsg("Por favor, preencha seu nome para continuarmos.");
       return;
     }
 
@@ -477,14 +372,12 @@ export default function App() {
 
     // 1. Bloqueio de Sessão (Visual)
     if (selectedPlan.frequency > 0) {
-      const newAvailableSlots = availableSlots.map((dayBlock) => ({
+      const newAvailableSlots = availableSlots.map(dayBlock => ({
         ...dayBlock,
-        slots: dayBlock.slots.map((slot) => {
-          const isSelected = selectedSlots.some(
-            (s) => s.day === dayBlock.name && s.time === slot.time
-          );
+        slots: dayBlock.slots.map(slot => {
+          const isSelected = selectedSlots.some(s => s.day === dayBlock.name && s.time === slot.time);
           if (isSelected) {
-            return { ...slot, booked: true };
+            return { ...slot, booked: true }; 
           }
           return slot;
         }),
@@ -494,94 +387,72 @@ export default function App() {
 
     // 2. Persistência no Firestore (Se disponível)
     if (db && userId) {
-      try {
-        await addDoc(collection(db, RESERVATION_COLLECTION), {
-          userId,
-          userName: userData.name,
-          plan: selectedPlan.name,
-          planId: selectedPlan.id,
-          price: selectedPlan.price,
-          paymentMethod: userData.payment,
-          slots: selectedSlots,
-          createdAt: new Date(),
-          status: 'PENDING_WHATSAPP',
-        });
-      } catch (e) {
-        console.error('Erro ao salvar reserva:', e);
-      }
+        try {
+            await addDoc(collection(db, RESERVATION_COLLECTION), {
+                userId,
+                userName: userData.name,
+                plan: selectedPlan.name,
+                planId: selectedPlan.id,
+                price: selectedPlan.price,
+                paymentMethod: userData.payment,
+                slots: selectedSlots,
+                createdAt: new Date(),
+                status: 'PENDING_WHATSAPP'
+            });
+        } catch (e) {
+            console.error("Erro ao salvar reserva:", e);
+        }
     } else {
-      console.log('Simulação de salvamento (Firebase não configurado):', {
-        user: userData.name,
-        plan: selectedPlan.name,
-      });
+        console.log("Simulação de salvamento (Firebase não configurado):", {
+            user: userData.name,
+            plan: selectedPlan.name
+        });
     }
 
     // 3. WhatsApp
-    const paymentLabels: any = {
-      pix: 'PIX',
-      credito: 'Cartão de Crédito',
-      debito: 'Cartão de Débito',
-    };
-    const scheduleText =
-      selectedPlan.frequency === 0
-        ? 'Online (Sem agendamento presencial)'
-        : formatSelectedSlots().replace(/\n/g, ', ');
+    const paymentLabels: any = { 'pix': 'PIX', 'credito': 'Cartão de Crédito', 'debito': 'Cartão de Débito' };
+    const scheduleText = selectedPlan.frequency === 0 ? 'Online (Sem agendamento presencial)' : formatSelectedSlots().replace(/\n/g, ', ');
 
-    const message =
-      `*OLÁ, PROF. VITOR!* 👋%0A%0A` +
+    const message = `*OLÁ, PROF. VITOR!* 👋%0A%0A` +
       `Gostaria de solicitar a seguinte reserva no Vitta+:%0A%0A` +
       `👤 *ALUNO:* ${userData.name.toUpperCase()}%0A` +
       `🏷️ *SERVIÇO:* ${PLANS_DATA[activeTab].label} - ${selectedPlan.name}%0A` +
       `💰 *VALOR:* ${selectedPlan.price} (${selectedPlan.period})%0A` +
       `💳 *PAGAMENTO:* ${paymentLabels[userData.payment].toUpperCase()}%0A%0A` +
-      `📅 *AGENDA SOLICITADA:* %0A   • ${scheduleText.replace(
-        /, /g,
-        '%0A   • '
-      )}%0A%0A` +
+      `📅 *AGENDA SOLICITADA:* %0A   • ${scheduleText.replace(/, /g, '%0A   • ')}%0A%0A` +
       `_Aguardo confirmação!_`;
 
     window.open(`https://wa.me/${PHONE_NUMBER}?text=${message}`, '_blank');
-
+    
     // 4. Reset
     setTimeout(() => {
-      setSelectedSlots([]);
-      setSelectedPlan(null);
-      setActiveTab('presencial');
-      setUserData({ name: '', payment: 'pix' });
-      setStep(0);
+        setSelectedSlots([]);
+        setSelectedPlan(null);
+        setActiveTab('presencial');
+        setUserData({ name: '', payment: 'pix' });
+        setStep(0); 
     }, 1000);
   };
 
   // --- COMPONENTES VISUAIS ---
 
   const CategoryCard = ({ categoryKey, label, icon }: any) => (
-    <div
+    <div 
       onClick={() => setActiveTab(categoryKey)}
       className={`
         bg-white rounded-xl p-4 border cursor-pointer transition-all shadow-sm flex flex-col items-center justify-center text-center gap-2 h-28
-        ${
-          activeTab === categoryKey
-            ? `border-[#004D40] ring-1 ring-[#004D40] shadow-md`
-            : 'border-gray-100 hover:border-gray-300 hover:shadow-md'
-        }
+        ${activeTab === categoryKey 
+          ? `border-[#004D40] ring-1 ring-[#004D40] shadow-md` 
+          : 'border-gray-100 hover:border-gray-300 hover:shadow-md'}
       `}
       style={{
         borderColor: activeTab === categoryKey ? BRAND.PRIMARY : undefined,
-        boxShadow:
-          activeTab === categoryKey
-            ? `0 10px 15px -3px rgba(0, 77, 64, 0.1)`
-            : undefined,
+        boxShadow: activeTab === categoryKey ? `0 10px 15px -3px rgba(0, 77, 64, 0.1)` : undefined,
       }}
     >
-      <div
-        className={`w-10 h-10 rounded-full flex items-center justify-center mb-1 transition-colors duration-300`}
-        style={{
-          backgroundColor:
-            activeTab === categoryKey ? BRAND.PRIMARY : '#F3F4F6',
-          color: activeTab === categoryKey ? 'white' : BRAND.PRIMARY,
-        }}
-      >
-        {React.cloneElement(icon, { className: 'w-5 h-5' })}
+      <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-1 transition-colors duration-300`} 
+           style={{ backgroundColor: activeTab === categoryKey ? BRAND.PRIMARY : '#F3F4F6', color: activeTab === categoryKey ? 'white' : BRAND.PRIMARY }}>
+        {React.cloneElement(icon, { className: "w-5 h-5" })}
       </div>
       <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-800 leading-tight">
         {label}
@@ -594,43 +465,30 @@ export default function App() {
       <div className="max-w-md mx-auto space-y-4">
         <div className="flex items-center gap-2 border-b border-gray-700 pb-4">
           <Leaf className="w-5 h-5 text-[#FFC107]" strokeWidth={2.5} />
-          <span className="text-lg font-bold tracking-tight uppercase">
-            Vitta<span className="font-extrabold text-[#FFC107]">+</span>
-          </span>
+          <span className="text-lg font-bold tracking-tight uppercase">Vitta<span className="font-extrabold text-[#FFC107]">+</span></span>
         </div>
-
+        
         <div className="space-y-3 pt-3">
           <div className="flex items-center gap-3 text-sm text-gray-300">
             <User size={16} className="text-[#FFC107] shrink-0" />
             <p className="font-bold">Prof. Vitor Fiechter</p>
           </div>
-
-          <a
-            href={`tel:${PHONE_NUMBER}`}
-            className="flex items-center gap-3 text-sm text-gray-300 hover:text-[#FFC107] transition-colors"
-          >
+          
+          <a href={`tel:${PHONE_NUMBER}`} className="flex items-center gap-3 text-sm text-gray-300 hover:text-[#FFC107] transition-colors">
             <PhoneCall size={16} className="text-[#004D40] shrink-0" />
             <p className="underline">(41) 9 9549 8077 (Concierge)</p>
           </a>
-
-          <a
-            href={`mailto:${EMAIL_CONTACT}`}
-            className="flex items-center gap-3 text-sm text-gray-300 hover:text-[#FFC107] transition-colors"
-          >
+          
+          <a href={`mailto:${EMAIL_CONTACT}`} className="flex items-center gap-3 text-sm text-gray-300 hover:text-[#FFC107] transition-colors">
             <Mail size={16} className="text-[#004D40] shrink-0" />
             <p className="underline">{EMAIL_CONTACT}</p>
           </a>
 
           <div className="text-xs text-gray-500 pt-4 border-t border-gray-700 mt-4">
-            <p>
-              O Vitta+ é uma consultoria de movimento focada em ciência e
-              didática.
-            </p>
+            <p>O Vitta+ é uma consultoria de movimento focada em ciência e didática.</p>
             <p className="mt-1">© 2024 Vitta+ Todos os direitos reservados.</p>
             {userId && (
-              <p className="mt-1 text-gray-600 text-[10px] truncate">
-                ID do Usuário: {userId}
-              </p>
+              <p className="mt-1 text-gray-600 text-[10px] truncate">ID do Usuário: {userId}</p>
             )}
           </div>
         </div>
@@ -638,43 +496,38 @@ export default function App() {
     </footer>
   );
 
-  if (!isAuthReady)
-    return (
+
+  if (!isAuthReady) return (
       <div className="flex flex-col items-center justify-center h-screen bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#004D40] mb-4"></div>
-        <div className="text-[#004D40] font-bold tracking-widest text-xs">
-          CARREGANDO VITTA+
-        </div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#004D40] mb-4"></div>
+          <div className="text-[#004D40] font-bold tracking-widest text-xs">CARREGANDO VITTA+</div>
       </div>
-    );
+  );
 
   return (
     <div className="min-h-screen bg-[#F9FAFB] font-sans text-gray-800 antialiased pb-24 selection:bg-[#004D40] selection:text-white">
+      
       {/* HEADER */}
       <nav className="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm">
         <div className="max-w-md mx-auto px-6 h-16 flex justify-between items-center">
-          <div
-            className="flex items-center gap-2 cursor-pointer"
-            onClick={() => setStep(0)}
-          >
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => setStep(0)}>
             <Leaf className="w-5 h-5 text-[#004D40]" strokeWidth={2.5} />
             <span className="text-lg font-bold tracking-tight text-[#1F2937] uppercase">
               Vitta<span className="font-extrabold text-[#FFC107]">+</span>
             </span>
           </div>
           {step > 0 && (
-            <button
-              onClick={() => {
-                // Lógica de voltar aprimorada
-                if (step === 2) {
-                  setSelectedPlan(null); // Volta para a seleção do plano, desmarcando o plano atual
-                  setStep(1);
-                } else if (step === 3 && selectedPlan?.frequency === 0) {
-                  setStep(1); // Online vai direto para o resumo, volta para o plano
-                } else setStep(step - 1); // Volta 1 passo normal
-              }}
-              className="text-[10px] font-bold text-gray-400 hover:text-[#004D40] uppercase tracking-widest transition-colors flex items-center gap-1"
-            >
+            <button onClick={() => {
+              // Lógica de voltar aprimorada
+              if (step === 2) {
+                setSelectedPlan(null); // Volta para a seleção do plano, desmarcando o plano atual
+                setStep(1);
+              } else if (step === 3 && selectedPlan?.frequency === 0) {
+                setStep(1); // Online vai direto para o resumo, volta para o plano
+              }
+              else setStep(step - 1); // Volta 1 passo normal
+            }} 
+            className="text-[10px] font-bold text-gray-400 hover:text-[#004D40] uppercase tracking-widest transition-colors flex items-center gap-1">
               <ChevronLeft size={12} /> Voltar
             </button>
           )}
@@ -682,63 +535,41 @@ export default function App() {
       </nav>
 
       <main className="max-w-md mx-auto pt-20 px-6">
+
         {/* --- STEP 0: HOME --- */}
         {step === 0 && (
           <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 text-center mt-6 pb-10">
             <div className="w-24 h-24 rounded-full border-4 border-white p-1 mb-4 shadow-2xl shadow-gray-200 mx-auto bg-white">
-              <div className="w-full h-full rounded-full flex items-center justify-center text-3xl font-light text-white bg-[#004D40]">
-                VF
-              </div>
+              <div className="w-full h-full rounded-full flex items-center justify-center text-3xl font-light text-white bg-[#004D40]">VF</div>
             </div>
-
-            <h1 className="text-3xl font-light mb-1 uppercase tracking-tight text-[#1F2937]">
-              {PROF_BIO.name}
-            </h1>
-            <p className="text-xs font-bold uppercase tracking-widest mb-6 text-[#FFC107]">
-              {PROF_BIO.role}
-            </p>
-
+            
+            <h1 className="text-3xl font-light mb-1 uppercase tracking-tight text-[#1F2937]">{PROF_BIO.name}</h1>
+            <p className="text-xs font-bold uppercase tracking-widest mb-6 text-[#FFC107]">{PROF_BIO.role}</p>
+            
             <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-xl shadow-gray-100/50 text-left mb-8 relative">
               <div className="absolute top-0 left-0 w-1 h-full rounded-l-2xl bg-[#004D40]"></div>
-              <p className="text-sm text-gray-600 leading-relaxed mb-4 pl-3 italic">
-                "{PROF_BIO.text}"
-              </p>
+              <p className="text-sm text-gray-600 leading-relaxed mb-4 pl-3 italic">"{PROF_BIO.text}"</p>
               <div className="ml-3 flex items-center gap-2 text-[10px] font-bold uppercase px-2 py-1 rounded w-fit text-white bg-[#004D40]">
                 <User size={12} /> {PROF_BIO.experience}
               </div>
             </div>
 
-            <h2 className="text-xs font-bold uppercase tracking-widest mb-4 text-[#1F2937]">
-              O Método: Pilares da Constância
-            </h2>
+            <h2 className="text-xs font-bold uppercase tracking-widest mb-4 text-[#1F2937]">O Método: Pilares da Constância</h2>
             <div className="grid gap-3 text-left">
               {METHOD_PILLARS.map((pillar, idx) => (
-                <div
-                  key={idx}
-                  className="bg-white p-4 rounded-xl border border-gray-100 flex gap-4 shadow-sm hover:border-[#FFC107] transition-all cursor-default group"
-                >
-                  <div className="p-2 rounded-lg h-fit flex items-center justify-center shrink-0 bg-[#004D40] group-hover:scale-110 transition-transform">
-                    {pillar.icon}
-                  </div>
+                <div key={idx} className="bg-white p-4 rounded-xl border border-gray-100 flex gap-4 shadow-sm hover:border-[#FFC107] transition-all cursor-default group">
+                  <div className="p-2 rounded-lg h-fit flex items-center justify-center shrink-0 bg-[#004D40] group-hover:scale-110 transition-transform">{pillar.icon}</div>
                   <div>
-                    <h3 className="text-xs font-bold uppercase mb-0.5 text-[#1F2937]">
-                      {pillar.title}
-                    </h3>
-                    <p className="text-[10px] text-gray-500 leading-snug">
-                      {pillar.desc}
-                    </p>
+                    <h3 className="text-xs font-bold uppercase mb-0.5 text-[#1F2937]">{pillar.title}</h3>
+                    <p className="text-[10px] text-gray-500 leading-snug">{pillar.desc}</p>
                   </div>
                 </div>
               ))}
             </div>
 
             <div className="mt-10 space-y-3">
-              <button
-                onClick={() => setStep(1)}
-                className="w-full py-4 rounded-xl text-white font-bold tracking-wide shadow-2xl flex items-center justify-center gap-2 transform active:scale-[0.98] transition-all text-xs uppercase bg-[#004D40] shadow-green-900/20 hover:bg-[#003d33]"
-              >
-                Ver Planos e Agendar{' '}
-                <ArrowRight size={16} className="text-[#FFC107]" />
+              <button onClick={() => setStep(1)} className="w-full py-4 rounded-xl text-white font-bold tracking-wide shadow-2xl flex items-center justify-center gap-2 transform active:scale-[0.98] transition-all text-xs uppercase bg-[#004D40] shadow-green-900/20 hover:bg-[#003d33]">
+                Ver Planos e Agendar <ArrowRight size={16} className="text-[#FFC107]" />
               </button>
             </div>
           </div>
@@ -748,12 +579,8 @@ export default function App() {
         {step === 1 && (
           <div className="animate-in fade-in slide-in-from-right-8 duration-500">
             <div className="mb-6">
-              <h2 className="text-2xl font-light uppercase text-[#1F2937]">
-                Serviços
-              </h2>
-              <p className="text-xs text-gray-500">
-                Escolha a categoria ideal.
-              </p>
+              <h2 className="text-2xl font-light uppercase text-[#1F2937]">Serviços</h2>
+              <p className="text-xs text-gray-500">Escolha a categoria ideal.</p>
             </div>
 
             <div className="grid grid-cols-2 gap-3 mb-8">
@@ -766,79 +593,59 @@ export default function App() {
                 />
               ))}
             </div>
-
+            
             <h3 className="text-sm font-bold uppercase mb-4 pt-4 border-t border-gray-100 text-[#1F2937] tracking-widest">
               {PLANS_DATA[activeTab].label}
             </h3>
 
             <div className="space-y-5 pb-10">
               {PLANS_DATA[activeTab].plans.map((plan: any) => (
-                <div
+                <div 
                   key={plan.id}
                   onClick={() => handlePlanSelect(plan)}
                   className={`
                     group bg-white rounded-2xl p-6 border transition-all cursor-pointer relative overflow-hidden shadow-sm hover:shadow-md
-                    ${
-                      plan.highlight
-                        ? 'border-[#FFC107]'
-                        : 'border-gray-100 hover:border-[#004D40]'
-                    }
+                    ${plan.highlight ? 'border-[#FFC107]' : 'border-gray-100 hover:border-[#004D40]'}
                   `}
                 >
                   {(plan.highlight || plan.badge) && (
-                    <div
-                      className={`absolute top-0 right-0 text-[#1F2937] text-[8px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-widest bg-[#FFC107]`}
-                    >
+                    <div className={`absolute top-0 right-0 text-[#1F2937] text-[8px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-widest bg-[#FFC107]`}>
                       {plan.highlight || plan.badge || 'DESTAQUE'}
                     </div>
                   )}
 
                   <div className="flex justify-between items-start mb-3">
                     <div className="text-right w-full">
-                      <p className="text-xl font-bold text-[#004D40]">
-                        {plan.price}
-                      </p>
-                      <p className="text-[9px] text-gray-400 uppercase font-medium">
-                        {plan.period}
-                      </p>
+                      <p className="text-xl font-bold text-[#004D40]">{plan.price}</p>
+                      <p className="text-[9px] text-gray-400 uppercase font-medium">{plan.period}</p>
                     </div>
                   </div>
 
-                  <h3 className="text-base font-bold uppercase tracking-tight text-[#1F2937]">
-                    {plan.name}
-                  </h3>
-                  <p className="text-[10px] text-gray-500 font-medium uppercase tracking-wider mb-4">
-                    {plan.tagline}
-                  </p>
-
+                  <h3 className="text-base font-bold uppercase tracking-tight text-[#1F2937]">{plan.name}</h3>
+                  <p className="text-[10px] text-gray-500 font-medium uppercase tracking-wider mb-4">{plan.tagline}</p>
+                  
                   {plan.features && (
                     <div className="space-y-2 border-t border-gray-100 pt-3">
                       {plan.features.map((feat: any, idx: number) => (
-                        <div
-                          key={idx}
-                          className="flex items-start text-xs text-gray-600"
-                        >
+                        <div key={idx} className="flex items-start text-xs text-gray-600">
                           <Check className="w-3.5 h-3.5 mr-2 shrink-0 text-[#004D40]" />
                           {feat}
                         </div>
                       ))}
                     </div>
                   )}
-
+                  
                   {plan.benefits && (
                     <div className="space-y-2 border-t border-gray-100 pt-3">
                       {plan.benefits.map((feat: any, idx: number) => (
-                        <div
-                          key={idx}
-                          className="flex items-start text-xs text-gray-600"
-                        >
+                        <div key={idx} className="flex items-start text-xs text-gray-600">
                           <Check className="w-3.5 h-3.5 mr-2 shrink-0 text-[#004D40]" />
                           {feat}
                         </div>
                       ))}
                     </div>
                   )}
-
+                  
                   <div className="mt-4 flex items-center justify-end text-xs font-bold text-[#FFC107] opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest">
                     SELECIONAR <ChevronRight size={14} />
                   </div>
@@ -852,36 +659,22 @@ export default function App() {
         {step === 2 && selectedPlan && (
           <div className="animate-in fade-in slide-in-from-right-8 duration-500 pb-24">
             <div className="sticky top-16 bg-[#F9FAFB]/95 py-4 z-30 backdrop-blur-sm border-b border-gray-100 mb-6">
-              <h2 className="text-xl font-light uppercase text-[#1F2937]">
-                Agendamento
-              </h2>
+              <h2 className="text-xl font-light uppercase text-[#1F2937]">Agendamento</h2>
               <div className="flex items-center justify-between mt-1">
                 <span className="text-xs text-gray-500 uppercase font-medium">
-                  {selectedPlan.frequency === 1
-                    ? 'Selecione 1 horário'
-                    : `Selecione ${selectedPlan.frequency} dias diferentes`}
+                  {selectedPlan.frequency === 1 ? 'Selecione 1 horário' : `Selecione ${selectedPlan.frequency} dias diferentes`}
                 </span>
-                <span
-                  className={`text-lg font-bold`}
-                  style={{
-                    color:
-                      selectedSlots.length === selectedPlan.frequency
-                        ? '#004D40'
-                        : '#FFC107',
-                  }}
-                >
+                <span className={`text-lg font-bold`} style={{ color: selectedSlots.length === selectedPlan.frequency ? '#004D40' : '#FFC107' }}>
                   {selectedSlots.length}/{selectedPlan.frequency}
                 </span>
               </div>
             </div>
-
+            
             <div className="bg-amber-50 border border-amber-100 p-3 rounded-lg flex gap-3 mb-6">
-              <Clock className="w-4 h-4 text-amber-600 shrink-0" />
-              <p className="text-[10px] text-amber-900 leading-snug">
-                <strong>ATENÇÃO:</strong> Horários em cinza estão{' '}
-                <strong>reservados</strong>. A reserva é confirmada via
-                WhatsApp.
-              </p>
+               <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+               <p className="text-[10px] text-amber-900 leading-snug">
+                 <strong>ATENÇÃO:</strong> Horários em cinza estão <strong>reservados</strong>. A reserva é confirmada via WhatsApp.
+               </p>
             </div>
 
             {errorMsg && (
@@ -892,39 +685,23 @@ export default function App() {
             )}
 
             <div className="space-y-6">
-              {availableSlots.map((dayBlock, idx) => {
-                const hasSlotInDay = selectedSlots.some(
-                  (s) => s.day === dayBlock.name
-                );
-                const isDayLocked =
-                  hasSlotInDay &&
-                  selectedPlan.frequency > 1 &&
-                  selectedSlots.length < selectedPlan.frequency; // Trava o dia se já tem um horário e precisa de mais
-                const canSelectMore =
-                  selectedSlots.length < selectedPlan.frequency;
+              {availableSlots.map((dayBlock, idx) => { 
+                const hasSlotInDay = selectedSlots.some(s => s.day === dayBlock.name);
+                const isDayLocked = hasSlotInDay && selectedPlan.frequency > 1 && selectedSlots.length < selectedPlan.frequency; // Trava o dia se já tem um horário e precisa de mais
+                const canSelectMore = selectedSlots.length < selectedPlan.frequency;
 
                 return (
-                  <div
-                    key={idx}
-                    className={`bg-white border rounded-2xl p-4 transition-all shadow-sm ${
-                      hasSlotInDay
-                        ? 'border-[#004D40] shadow-md'
-                        : 'border-gray-100'
-                    }`}
-                  >
+                  <div key={idx} className={`bg-white border rounded-2xl p-4 transition-all shadow-sm ${hasSlotInDay ? 'border-[#004D40] shadow-md' : 'border-gray-100'}`}>
                     <div className="flex justify-between items-center mb-3">
                       <span className="text-xs font-bold uppercase flex items-center gap-2 text-[#1F2937]">
-                        <Calendar size={14} className="text-[#004D40]" />{' '}
-                        {dayBlock.name}
+                        <Calendar size={14} className="text-[#004D40]" /> {dayBlock.name}
                       </span>
                     </div>
                     <div className="grid grid-cols-4 gap-2">
                       {dayBlock.slots.map((slot) => {
-                        const isSelected = selectedSlots.some(
-                          (s) => s.day === dayBlock.name && s.time === slot.time
-                        );
-                        const isBooked = slot.booked;
-
+                        const isSelected = selectedSlots.some(s => s.day === dayBlock.name && s.time === slot.time);
+                        const isBooked = slot.booked; 
+                        
                         // Determinar o estado de desabilitação
                         let isDisabled = isBooked;
                         if (!isSelected && isDayLocked) {
@@ -933,25 +710,21 @@ export default function App() {
                         if (!isSelected && !isDayLocked && !canSelectMore) {
                           isDisabled = true; // Não pode selecionar se já atingiu o limite de slots
                         }
-
+                        
                         return (
                           <button
                             key={slot.time}
                             disabled={isDisabled}
-                            onClick={() =>
-                              handleSlotToggle(dayBlock.name, slot.time)
-                            }
+                            onClick={() => handleSlotToggle(dayBlock.name, slot.time)}
                             className={`
                               py-2 rounded-lg text-[10px] font-bold transition-all shadow-sm border
-                              ${
-                                isSelected
-                                  ? 'bg-[#004D40] text-white border-[#004D40] shadow-lg scale-[1.02]'
-                                  : isBooked
-                                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-transparent'
+                              ${isSelected 
+                                ? 'bg-[#004D40] text-white border-[#004D40] shadow-lg scale-[1.02]' 
+                                : isBooked
+                                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-transparent' 
                                   : isDisabled
-                                  ? 'bg-gray-50 text-gray-300 cursor-not-allowed border-transparent'
-                                  : 'bg-white border-gray-200 text-gray-600 hover:border-[#FFC107]'
-                              }
+                                    ? 'bg-gray-50 text-gray-300 cursor-not-allowed border-transparent' 
+                                    : 'bg-white border-gray-200 text-gray-600 hover:border-[#FFC107]'}
                             `}
                           >
                             {slot.time}
@@ -965,22 +738,17 @@ export default function App() {
             </div>
 
             <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 shadow-xl z-50">
-              <button
-                onClick={() =>
-                  selectedSlots.length === selectedPlan.frequency && setStep(3)
-                }
+              <button 
+                onClick={() => selectedSlots.length === selectedPlan.frequency && setStep(3)}
                 disabled={selectedSlots.length !== selectedPlan.frequency}
                 className={`
                   w-full py-4 rounded-xl font-bold tracking-wide shadow-lg transition-all flex items-center justify-center gap-2 uppercase text-xs text-white
-                  ${
-                    selectedSlots.length === selectedPlan.frequency
-                      ? 'bg-[#004D40] shadow-green-900/20 active:scale-[0.98]'
-                      : 'bg-gray-300 cursor-not-allowed shadow-none'
-                  } 
+                  ${selectedSlots.length === selectedPlan.frequency
+                    ? 'bg-[#004D40] shadow-green-900/20 active:scale-[0.98]' 
+                    : 'bg-gray-300 cursor-not-allowed shadow-none'} 
                 `}
               >
-                CONFIRMAR E REVISAR{' '}
-                <ArrowRight size={16} className="text-[#FFC107]" />
+                CONFIRMAR E REVISAR <ArrowRight size={16} className="text-[#FFC107]" />
               </button>
             </div>
           </div>
@@ -990,76 +758,52 @@ export default function App() {
         {step === 3 && selectedPlan && (
           <div className="animate-in fade-in slide-in-from-right-8 duration-500 pt-4 pb-24">
             <div className="text-center mb-8">
-              <h2 className="text-xl font-light uppercase text-[#1F2937]">
-                Revisão
-              </h2>
-              <p className="text-xs text-gray-500">
-                Confirme seus dados para envio.
-              </p>
+              <h2 className="text-xl font-light uppercase text-[#1F2937]">Revisão</h2>
+              <p className="text-xs text-gray-500">Confirme seus dados para envio.</p>
             </div>
 
             <div className="bg-white rounded-2xl shadow-xl shadow-gray-100/70 border border-gray-100 overflow-hidden mb-8 relative">
               <div className="h-2 w-full bg-gradient-to-r from-[#004D40] via-[#FFC107] to-[#FFC107] opacity-80"></div>
               <div className="p-6 space-y-6">
+                
                 {/* Linha 1: Serviço e Preço */}
                 <div className="flex justify-between items-start border-b border-gray-100 pb-4">
                   <div>
-                    <span className="text-[9px] uppercase tracking-wider text-gray-400 mb-1 block">
-                      Serviço Selecionado
-                    </span>
-                    <h3 className="text-lg font-bold uppercase tracking-tight text-[#1F2937]">
-                      {selectedPlan.name}
-                    </h3>
-                    <span className="text-[9px] text-white px-2 py-0.5 rounded-full uppercase font-bold bg-[#004D40]">
-                      {PLANS_DATA[activeTab].label}
-                    </span>
+                    <span className="text-[9px] uppercase tracking-wider text-gray-400 mb-1 block">Serviço Selecionado</span>
+                    <h3 className="text-lg font-bold uppercase tracking-tight text-[#1F2937]">{selectedPlan.name}</h3>
+                    <span className="text-[9px] text-white px-2 py-0.5 rounded-full uppercase font-bold bg-[#004D40]">{PLANS_DATA[activeTab].label}</span>
                   </div>
                   <div className="text-right">
-                    <span className="text-2xl font-bold block text-[#004D40]">
-                      {selectedPlan.price}
-                    </span>
-                    <span className="text-[9px] text-gray-400 uppercase">
-                      {selectedPlan.period}
-                    </span>
+                    <span className="text-2xl font-bold block text-[#004D40]">{selectedPlan.price}</span>
+                    <span className="text-[9px] text-gray-400 uppercase">{selectedPlan.period}</span>
                   </div>
                 </div>
 
                 {/* Linha 2: Agenda / Modalidade */}
                 {selectedPlan.frequency > 0 ? (
                   <div className="border-b border-gray-100 pb-4">
-                    <span className="text-[9px] uppercase tracking-wider text-gray-400 mb-2 block">
-                      Agenda
-                    </span>
+                    <span className="text-[9px] uppercase tracking-wider text-gray-400 mb-2 block">Agenda</span>
                     <div className="text-xs text-[#1F2937] bg-gray-50 p-3 rounded-lg border border-gray-100 font-medium">
                       <div className="flex items-center gap-2 mb-1 text-[#004D40]">
                         <Clock size={14} />
                         <span>Agendamento Solicitado:</span>
                       </div>
-                      <pre className="whitespace-pre-wrap text-[11px] mt-2 leading-relaxed font-semibold">
-                        {formatSelectedSlots()}
-                      </pre>
+                      <pre className="whitespace-pre-wrap text-[11px] mt-2 leading-relaxed font-semibold">{formatSelectedSlots()}</pre>
                     </div>
                   </div>
                 ) : (
                   <div className="border-b border-gray-100 pb-4">
-                    <span className="text-[9px] uppercase tracking-wider text-gray-400 mb-2 block">
-                      Modalidade
-                    </span>
+                    <span className="text-[9px] uppercase tracking-wider text-gray-400 mb-2 block">Modalidade</span>
                     <div className="text-xs text-[#1F2937] bg-gray-50 p-3 rounded-lg border border-gray-100 font-medium flex items-center gap-2">
                       <Smartphone size={14} className="text-[#004D40]" />
                       Online - Suporte e treino via App.
                     </div>
                   </div>
                 )}
-
+                
                 {/* Linha 3: Nome do Aluno */}
                 <div className="pt-4 border-t border-gray-100">
-                  <label
-                    htmlFor="userName"
-                    className="text-[9px] uppercase tracking-wider text-gray-400 mb-2 block"
-                  >
-                    Seu Nome Completo
-                  </label>
+                  <label htmlFor="userName" className="text-[9px] uppercase tracking-wider text-gray-400 mb-2 block">Seu Nome Completo</label>
                   <input
                     id="userName"
                     type="text"
@@ -1075,38 +819,23 @@ export default function App() {
 
                 {/* Linha 4: Forma de Pagamento */}
                 <div className="pt-4 border-t border-gray-100">
-                  <span className="text-[9px] uppercase tracking-wider text-gray-400 mb-2 block">
-                    Forma de Pagamento Preferida
-                  </span>
+                  <span className="text-[9px] uppercase tracking-wider text-gray-400 mb-2 block">Forma de Pagamento Preferida</span>
                   <div className="grid grid-cols-3 gap-3">
                     {['pix', 'credito', 'debito'].map((method) => (
-                      <label
-                        key={method}
-                        className={`flex flex-col items-center justify-center p-3 rounded-xl border cursor-pointer transition-all ${
-                          userData.payment === method
-                            ? 'bg-[#004D40] border-[#004D40] text-white shadow-md'
-                            : 'bg-white border-gray-200 text-gray-600 hover:border-[#FFC107]'
-                        }`}
-                      >
+                      <label key={method} className={`flex flex-col items-center justify-center p-3 rounded-xl border cursor-pointer transition-all ${userData.payment === method ? 'bg-[#004D40] border-[#004D40] text-white shadow-md' : 'bg-white border-gray-200 text-gray-600 hover:border-[#FFC107]'}`}>
                         <input
                           type="radio"
                           name="paymentMethod"
                           value={method}
                           checked={userData.payment === method}
-                          onChange={() =>
-                            setUserData({ ...userData, payment: method })
-                          }
+                          onChange={() => setUserData({ ...userData, payment: method })}
                           className="sr-only"
                         />
                         {method === 'pix' && <Zap size={20} />}
                         {method === 'credito' && <CreditCard size={20} />}
                         {method === 'debito' && <Wallet size={20} />}
                         <span className="text-[10px] font-bold mt-1 uppercase">
-                          {method === 'pix'
-                            ? 'PIX'
-                            : method === 'credito'
-                            ? 'CRÉDITO'
-                            : 'DÉBITO'}
+                          {method === 'pix' ? 'PIX' : method === 'credito' ? 'CRÉDITO' : 'DÉBITO'}
                         </span>
                       </label>
                     ))}
@@ -1121,12 +850,11 @@ export default function App() {
                       Próximo Passo: Confirmação
                     </p>
                     <p className="text-[10px] text-gray-700 leading-snug mt-1">
-                      Ao clicar em "Reservar", você será redirecionado para o
-                      WhatsApp do Prof. Vitor para finalizar o pagamento e
-                      confirmar seus horários.
+                      Ao clicar em "Reservar", você será redirecionado para o WhatsApp do Prof. Vitor para finalizar o pagamento e confirmar seus horários.
                     </p>
                   </div>
                 </div>
+
               </div>
             </div>
 
@@ -1137,28 +865,26 @@ export default function App() {
                 {errorMsg}
               </div>
             )}
-
+            
             <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 shadow-xl z-50">
-              <button
+              <button 
                 onClick={handleFinalize}
                 disabled={!userData.name}
                 className={`
                   w-full py-4 rounded-xl font-bold tracking-wide shadow-lg transition-all flex items-center justify-center gap-2 uppercase text-xs text-white
-                  ${
-                    userData.name
-                      ? 'bg-[#FFC107] shadow-yellow-800/20 hover:bg-[#e0ad00] active:scale-[0.98]'
-                      : 'bg-gray-300 cursor-not-allowed shadow-none'
-                  } 
+                  ${userData.name
+                    ? 'bg-[#FFC107] shadow-yellow-800/20 hover:bg-[#e0ad00] active:scale-[0.98]' 
+                    : 'bg-gray-300 cursor-not-allowed shadow-none'} 
                 `}
               >
-                ENVIAR RESERVA E IR PARA O WHATSAPP{' '}
-                <ArrowRight size={16} className="text-[#004D40]" />
+                ENVIAR RESERVA E IR PARA O WHATSAPP <ArrowRight size={16} className="text-[#004D40]" />
               </button>
             </div>
           </div>
         )}
-      </main>
 
+      </main>
+      
       <Footer />
     </div>
   );
