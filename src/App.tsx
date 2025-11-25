@@ -13,7 +13,7 @@ import {
   getFirestore, addDoc, collection, onSnapshot
 } from 'firebase/firestore';
 
-// --- CORES DA MARCA ---
+// --- CONSTANTES GLOBAIS (Para não dar erro de "não encontrado") ---
 const BRAND = {
   PRIMARY: '#004D40', // Verde Turquesa Escuro
   HIGHLIGHT: '#FFC107', // Amarelo Vibrante
@@ -21,7 +21,9 @@ const BRAND = {
   BG: '#F9FAFB',      // Fundo
 };
 
-// --- DADOS DO VITTA+ ---
+const PHONE_NUMBER = "5541995498077"; 
+const EMAIL_CONTACT = "vitorfiechter@ufpr.br"; 
+
 const PROF_BIO = {
   name: "PROF. VITOR FIECHTER", 
   role: "O PROFESSOR DO MOVIMENTO", 
@@ -187,7 +189,7 @@ const createInitialSlotState = () => INITIAL_SLOTS_DATA.map(day => ({
   ],
 }));
 
-// 2. Configuração do Firebase (JÁ CONFIGURADO COM SUA CHAVE)
+// --- CONFIGURAÇÃO FIREBASE REAL (Suas chaves recuperadas) ---
 const firebaseConfig = {
   apiKey: "AIzaSyDtdnW6kAFEpKQnPp3iJuuxJCIk87M_lcc",
   authDomain: "vitta-7321a.firebaseapp.com",
@@ -202,21 +204,81 @@ const RESERVATION_COLLECTION = `reservations`;
 
 let db: any = null;
 let auth: any = null;
-let app: any = null;
 
-// Inicialização segura
-if (Object.keys(firebaseConfig).length > 0 && (firebaseConfig as any).apiKey) {
-    try {
-        app = initializeApp(firebaseConfig);
-        db = getFirestore(app);
-        auth = getAuth(app);
-    } catch (e) {
-        console.error("Erro na inicialização do Firebase:", e);
-    }
+// Inicialização do Firebase
+if (typeof window !== 'undefined') { 
+  try {
+    const app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    auth = getAuth(app);
+  } catch (e) {
+    console.error("Erro na inicialização do Firebase:", e);
+  }
 }
 
-const PHONE_NUMBER = "5541995498077"; 
-const EMAIL_CONTACT = "vitorfiechter@ufpr.br"; 
+// --- COMPONENTES AUXILIARES (Definidos fora do App para evitar erros de escopo) ---
+
+const CategoryCard = ({ categoryKey, label, icon, activeTab, setActiveTab }: any) => (
+  <div 
+    onClick={() => setActiveTab(categoryKey)}
+    className={`
+      bg-white rounded-xl p-4 border cursor-pointer transition-all shadow-sm flex flex-col items-center justify-center text-center gap-2 h-28
+      ${activeTab === categoryKey 
+        ? `border-[#004D40] ring-1 ring-[#004D40] shadow-md` 
+        : 'border-gray-100 hover:border-gray-300 hover:shadow-md'}
+    `}
+    style={{
+      borderColor: activeTab === categoryKey ? BRAND.PRIMARY : undefined,
+      boxShadow: activeTab === categoryKey ? `0 10px 15px -3px rgba(0, 77, 64, 0.1)` : undefined,
+    }}
+  >
+    <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-1 transition-colors duration-300`} 
+         style={{ backgroundColor: activeTab === categoryKey ? BRAND.PRIMARY : '#F3F4F6', color: activeTab === categoryKey ? 'white' : BRAND.PRIMARY }}>
+      {React.cloneElement(icon, { className: "w-5 h-5" })}
+    </div>
+    <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-800 leading-tight">
+      {label}
+    </h3>
+  </div>
+);
+
+const Footer = ({ userId }: { userId: string | null }) => (
+  <footer className="bg-[#1F2937] text-white p-6 mt-16 shadow-inner">
+    <div className="max-w-md mx-auto space-y-4">
+      <div className="flex items-center gap-2 border-b border-gray-700 pb-4">
+        <Leaf className="w-5 h-5 text-[#FFC107]" strokeWidth={2.5} />
+        <span className="text-lg font-bold tracking-tight uppercase">Vitta<span className="font-extrabold text-[#FFC107]">+</span></span>
+      </div>
+      
+      <div className="space-y-3 pt-3">
+        <div className="flex items-center gap-3 text-sm text-gray-300">
+          <User size={16} className="text-[#FFC107] shrink-0" />
+          <p className="font-bold">Prof. Vitor Fiechter</p>
+        </div>
+        
+        <a href={`tel:${PHONE_NUMBER}`} className="flex items-center gap-3 text-sm text-gray-300 hover:text-[#FFC107] transition-colors">
+          <PhoneCall size={16} className="text-[#004D40] shrink-0" />
+          <p className="underline">(41) 9 9549 8077 (Concierge)</p>
+        </a>
+        
+        <a href={`mailto:${EMAIL_CONTACT}`} className="flex items-center gap-3 text-sm text-gray-300 hover:text-[#FFC107] transition-colors">
+          <Mail size={16} className="text-[#004D40] shrink-0" />
+          <p className="underline">{EMAIL_CONTACT}</p>
+        </a>
+
+        <div className="text-xs text-gray-500 pt-4 border-t border-gray-700 mt-4">
+          <p>O Vitta+ é uma consultoria de movimento focada em ciência e didática.</p>
+          <p className="mt-1">© 2024 Vitta+ Todos os direitos reservados.</p>
+          {userId && (
+            <p className="mt-1 text-gray-600 text-[10px] truncate">ID do Usuário: {userId}</p>
+          )}
+        </div>
+      </div>
+    </div>
+  </footer>
+);
+
+// --- COMPONENTE PRINCIPAL ---
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('presencial');
@@ -226,22 +288,14 @@ export default function App() {
   const [step, setStep] = useState(0); 
   const [errorMsg, setErrorMsg] = useState('');
   const [availableSlots, setAvailableSlots] = useState(createInitialSlotState()); 
-  
-  // Estado Firebase
-  const [isAuthReady, setIsAuthReady] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
 
-  // --- SINCRONIZAÇÃO DE AGENDA ---
+  // Sincronização com Firebase (Agenda)
   useEffect(() => {
-    // GUARD CLAUSE: Impede leitura se não tiver DB configurado
-    if (!db) return;
-
-    let localUserId = userId;
-    if (!localUserId) return;
+    if (!db || !userId) return;
 
     const unsubscribe = onSnapshot(collection(db, RESERVATION_COLLECTION), (snapshot) => {
       const allBookedSlots: any[] = [];
-      
       snapshot.forEach((doc) => {
         const data = doc.data();
         if (data.slots && Array.isArray(data.slots)) {
@@ -260,55 +314,34 @@ export default function App() {
           }),
         }));
       });
-    }, (error) => {
-      console.error("Erro ao sincronizar agenda:", error);
-    });
+    }, (error) => console.error("Sync error", error));
 
     return () => unsubscribe();
-  }, [userId]); 
+  }, [userId]);
 
-  // --- INICIALIZAÇÃO AUTH ---
+  // Autenticação Anônima
   useEffect(() => {
-    const initFirebase = async () => {
-        if (!auth) {
-            setUserId('modo-visual-' + Math.random().toString(36).substr(2, 9));
-            setIsAuthReady(true);
-            return;
-        }
-
-        try {
-            await signInAnonymously(auth);
-        } catch (e) {
-            console.error("Erro na autenticação:", e);
-            setIsAuthReady(true);
-        }
-    };
-
-    if (auth) {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            if (user) {
-                setUserId(user.uid);
-            } else {
-                 setUserId(null); 
-            }
-            setIsAuthReady(true);
-        });
-        
-        initFirebase();
-        return () => unsubscribe();
-    } else {
-        setUserId('visitante');
-        setIsAuthReady(true);
+    if (!auth) {
+        // Fallback se o Firebase falhar
+        setUserId('offline-user');
+        return;
     }
+    
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserId(user.uid);
+      } else {
+        signInAnonymously(auth).catch((e) => console.error("Auth error", e));
+      }
+    });
+    return () => unsubscribe();
   }, []);
 
-  // Scroll to top
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setErrorMsg('');
   }, [step]);
 
-  // Limpa slots ao trocar plano
   useEffect(() => {
     setSelectedSlots([]);
   }, [selectedPlan]);
@@ -330,7 +363,6 @@ export default function App() {
     const slotId = `${dayName}-${time}`;
     const existingIndex = selectedSlots.findIndex(s => s.id === slotId);
     
-    // Desmarcar
     if (existingIndex >= 0) {
       const newSlots = [...selectedSlots];
       newSlots.splice(existingIndex, 1);
@@ -338,20 +370,17 @@ export default function App() {
       return;
     }
 
-    // Limite do plano
     if (selectedSlots.length >= maxSlots) {
       setErrorMsg(`Selecione exatamente ${maxSlots} horário(s).`);
       return;
     }
 
-    // Regra: Dias diferentes
     const hasSlotInDay = selectedSlots.some(s => s.day === dayName);
     if (hasSlotInDay && maxSlots > 1) {
       setErrorMsg("Escolha dias diferentes para cada treino.");
       return;
     }
 
-    // Marcar
     setSelectedSlots([...selectedSlots, { id: slotId, day: dayName, time }]);
   };
 
@@ -370,22 +399,6 @@ export default function App() {
 
     if (!selectedPlan) return;
 
-    // 1. Bloqueio de Sessão (Visual)
-    if (selectedPlan.frequency > 0) {
-      const newAvailableSlots = availableSlots.map(dayBlock => ({
-        ...dayBlock,
-        slots: dayBlock.slots.map(slot => {
-          const isSelected = selectedSlots.some(s => s.day === dayBlock.name && s.time === slot.time);
-          if (isSelected) {
-            return { ...slot, booked: true }; 
-          }
-          return slot;
-        }),
-      }));
-      setAvailableSlots(newAvailableSlots);
-    }
-
-    // 2. Persistência no Firestore (Se disponível)
     if (db && userId) {
         try {
             await addDoc(collection(db, RESERVATION_COLLECTION), {
@@ -400,16 +413,10 @@ export default function App() {
                 status: 'PENDING_WHATSAPP'
             });
         } catch (e) {
-            console.error("Erro ao salvar reserva:", e);
+            console.error("Erro ao salvar", e);
         }
-    } else {
-        console.log("Simulação de salvamento (Firebase não configurado):", {
-            user: userData.name,
-            plan: selectedPlan.name
-        });
     }
 
-    // 3. WhatsApp
     const paymentLabels: any = { 'pix': 'PIX', 'credito': 'Cartão de Crédito', 'debito': 'Cartão de Débito' };
     const scheduleText = selectedPlan.frequency === 0 ? 'Online (Sem agendamento presencial)' : formatSelectedSlots().replace(/\n/g, ', ');
 
@@ -424,7 +431,6 @@ export default function App() {
 
     window.open(`https://wa.me/${PHONE_NUMBER}?text=${message}`, '_blank');
     
-    // 4. Reset
     setTimeout(() => {
         setSelectedSlots([]);
         setSelectedPlan(null);
@@ -433,76 +439,6 @@ export default function App() {
         setStep(0); 
     }, 1000);
   };
-
-  // --- COMPONENTES VISUAIS ---
-
-  const CategoryCard = ({ categoryKey, label, icon }: any) => (
-    <div 
-      onClick={() => setActiveTab(categoryKey)}
-      className={`
-        bg-white rounded-xl p-4 border cursor-pointer transition-all shadow-sm flex flex-col items-center justify-center text-center gap-2 h-28
-        ${activeTab === categoryKey 
-          ? `border-[#004D40] ring-1 ring-[#004D40] shadow-md` 
-          : 'border-gray-100 hover:border-gray-300 hover:shadow-md'}
-      `}
-      style={{
-        borderColor: activeTab === categoryKey ? BRAND.PRIMARY : undefined,
-        boxShadow: activeTab === categoryKey ? `0 10px 15px -3px rgba(0, 77, 64, 0.1)` : undefined,
-      }}
-    >
-      <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-1 transition-colors duration-300`} 
-           style={{ backgroundColor: activeTab === categoryKey ? BRAND.PRIMARY : '#F3F4F6', color: activeTab === categoryKey ? 'white' : BRAND.PRIMARY }}>
-        {React.cloneElement(icon, { className: "w-5 h-5" })}
-      </div>
-      <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-800 leading-tight">
-        {label}
-      </h3>
-    </div>
-  );
-
-  const Footer = () => (
-    <footer className="bg-[#1F2937] text-white p-6 mt-16 shadow-inner">
-      <div className="max-w-md mx-auto space-y-4">
-        <div className="flex items-center gap-2 border-b border-gray-700 pb-4">
-          <Leaf className="w-5 h-5 text-[#FFC107]" strokeWidth={2.5} />
-          <span className="text-lg font-bold tracking-tight uppercase">Vitta<span className="font-extrabold text-[#FFC107]">+</span></span>
-        </div>
-        
-        <div className="space-y-3 pt-3">
-          <div className="flex items-center gap-3 text-sm text-gray-300">
-            <User size={16} className="text-[#FFC107] shrink-0" />
-            <p className="font-bold">Prof. Vitor Fiechter</p>
-          </div>
-          
-          <a href={`tel:${PHONE_NUMBER}`} className="flex items-center gap-3 text-sm text-gray-300 hover:text-[#FFC107] transition-colors">
-            <PhoneCall size={16} className="text-[#004D40] shrink-0" />
-            <p className="underline">(41) 9 9549 8077 (Concierge)</p>
-          </a>
-          
-          <a href={`mailto:${EMAIL_CONTACT}`} className="flex items-center gap-3 text-sm text-gray-300 hover:text-[#FFC107] transition-colors">
-            <Mail size={16} className="text-[#004D40] shrink-0" />
-            <p className="underline">{EMAIL_CONTACT}</p>
-          </a>
-
-          <div className="text-xs text-gray-500 pt-4 border-t border-gray-700 mt-4">
-            <p>O Vitta+ é uma consultoria de movimento focada em ciência e didática.</p>
-            <p className="mt-1">© 2024 Vitta+ Todos os direitos reservados.</p>
-            {userId && (
-              <p className="mt-1 text-gray-600 text-[10px] truncate">ID do Usuário: {userId}</p>
-            )}
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-
-
-  if (!isAuthReady) return (
-      <div className="flex flex-col items-center justify-center h-screen bg-gray-50">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#004D40] mb-4"></div>
-          <div className="text-[#004D40] font-bold tracking-widest text-xs">CARREGANDO VITTA+</div>
-      </div>
-  );
 
   return (
     <div className="min-h-screen bg-[#F9FAFB] font-sans text-gray-800 antialiased pb-24 selection:bg-[#004D40] selection:text-white">
@@ -518,14 +454,13 @@ export default function App() {
           </div>
           {step > 0 && (
             <button onClick={() => {
-              // Lógica de voltar aprimorada
               if (step === 2) {
-                setSelectedPlan(null); // Volta para a seleção do plano, desmarcando o plano atual
+                setSelectedPlan(null);
                 setStep(1);
               } else if (step === 3 && selectedPlan?.frequency === 0) {
-                setStep(1); // Online vai direto para o resumo, volta para o plano
+                setStep(1);
               }
-              else setStep(step - 1); // Volta 1 passo normal
+              else setStep(step - 1);
             }} 
             className="text-[10px] font-bold text-gray-400 hover:text-[#004D40] uppercase tracking-widest transition-colors flex items-center gap-1">
               <ChevronLeft size={12} /> Voltar
@@ -585,11 +520,13 @@ export default function App() {
 
             <div className="grid grid-cols-2 gap-3 mb-8">
               {Object.keys(PLANS_DATA).map((key) => (
-                <CategoryCard
-                  key={key}
-                  categoryKey={key}
-                  label={PLANS_DATA[key].label}
+                <CategoryCard 
+                  key={key} 
+                  categoryKey={key} 
+                  label={PLANS_DATA[key].label} 
                   icon={PLANS_DATA[key].icon}
+                  activeTab={activeTab}
+                  setActiveTab={setActiveTab}
                 />
               ))}
             </div>
@@ -885,7 +822,7 @@ export default function App() {
 
       </main>
       
-      <Footer />
+      <Footer userId={userId} />
     </div>
   );
 }
